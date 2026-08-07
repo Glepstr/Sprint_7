@@ -1,6 +1,6 @@
 import requests
 import allure
-from data import BASE_URL, ORDER_ENDPOINT, ORDER_TRACK_ENDPOINT
+from data import BASE_URL, ORDER_ENDPOINT, ORDER_TRACK_ENDPOINT, ORDER_ACCEPT_ENDPOINT
 
 class OrderAPI:
     
