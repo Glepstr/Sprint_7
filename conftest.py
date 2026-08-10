@@ -53,32 +53,23 @@ def create_order():
         yield None, None
 
 @pytest.fixture(scope='function')
-def create_courier_and_order():
-    """Фикстура создает курьера и заказ для тестов принятия заказа"""
-    # Создаем курьера
-    login = generate_random_string(10)
-    password = generate_random_string(10)
-    first_name = generate_random_string(10)
+def create_courier_and_order(create_courier, create_order):
+    """
+    Фикстура комбинирует создание курьера и заказа
+    Принимает на вход две фикстуры и возвращает их данные
+    """
+    # Получаем данные из фикстуры create_courier
+    login, password, first_name = create_courier
     
-    courier_payload = {
-        "login": login,
-        "password": password,
-        "firstName": first_name
-    }
-    CourierAPI.create_courier(courier_payload)
-    courier_id = CourierAPI.get_courier_id(login, password)
+    # Получаем данные из фикстуры create_order
+    track, order_id = create_order
     
-    # Создаем заказ
-    order_data = ORDER_DATA.copy()
-    order_response = OrderAPI.create_order(order_data)
-    track = order_response.json().get('track')
+    # Если курьер создан, получаем его id
+    courier_id = None
+    if login and password:
+        courier_id = CourierAPI.get_courier_id(login, password)
     
-    # Получаем order_id
-    order_info = OrderAPI.get_order_by_track(track)
-    order_id = order_info.json().get('order', {}).get('id')
+    # Возвращаем все необходимые данные
+    yield courier_id, order_id, login, password, track
     
-    yield courier_id, order_id, login, password
-    
-    # Удаляем курьера после теста
-    if courier_id:
-        CourierAPI.delete_courier(courier_id)
+    # Очистка выполняется автоматически в фикстурах create_courier и create_order
